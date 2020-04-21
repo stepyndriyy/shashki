@@ -137,14 +137,16 @@ def game_of_bots(screen: Surface, board: BoardState, ai: AI):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
+
+
 pygame.init()
 
 screen: Surface = pygame.display.set_mode([512, 512])
 ai = AI(search_depth=2) # full turn depth
 save = Gamesave("save.txt")
 
-#game_loop(screen, BoardState.initial_state(), ai, save)
+game_loop(screen, BoardState.initial_state(), ai, save)
 
-game_of_bots(screen, BoardState.initial_state(), ai)
+#game_of_bots(screen, BoardState.initial_state(), ai)
 
 pygame.quit()
