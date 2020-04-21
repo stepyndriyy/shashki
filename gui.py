@@ -79,7 +79,7 @@ def game_loop(screen: Surface, board: BoardState, ai: AI):
                             board = new_board
                         board = board.inverted()
                     else:
-                        # to do:
+                        # todo:
                         # message "you have to do move"
                         ...
         
@@ -100,7 +100,7 @@ def game_loop(screen: Surface, board: BoardState, ai: AI):
 pygame.init()
 
 screen: Surface = pygame.display.set_mode([512, 512])
-ai = AI(search_depth=4)
+ai = AI(search_depth=2) # full turn depth
 
 game_loop(screen, BoardState.initial_state(), ai)
 
