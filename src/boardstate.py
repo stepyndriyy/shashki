@@ -8,6 +8,7 @@ class BoardState:
         self.board: np.ndarray = board
         self.ate_pieces: np.ndarray=ate_pieces
         self.current_player: int = current_player
+        self.current_piece = None
 
     def inverted(self) -> 'BoardState':
         return BoardState(board=self.board[::-1, ::-1] * -1, current_player=self.current_player * -1)
@@ -102,7 +103,7 @@ class BoardState:
                 answer.append((y, x))
         return (answer, False)
 
-    def do_move(self, from_x, from_y, to_x, to_y, current_piece) -> Optional['BoardState']:
+    def do_move(self, from_x, from_y, to_x, to_y) -> Optional['BoardState']:
         """
         :return: new BoardState or None for invalid move
         """
@@ -115,12 +116,12 @@ class BoardState:
         if not (from_y, from_x) in self.get_possible_piece()[0]:
             return None
         
-        if current_piece != None and (current_piece[0] != from_x or current_piece[1] != from_y):
+        if self.current_piece != None and (self.current_piece[0] != from_x or self.current_piece[1] != from_y):
             return None
         
-        if current_piece != None and ((not (to_y, to_x) in self.get_possible_moves(from_y, from_x, True) or self.max_in_ate_pieces() == 0)):
+        if self.current_piece != None and ((not (to_y, to_x) in self.get_possible_moves(from_y, from_x, True) or self.max_in_ate_pieces() == 0)):
             return None
-        elif current_piece == None:
+        elif self.current_piece == None:
             possible_kills = self.get_possible_moves(from_y, from_x, True)
             if len(possible_kills) != 0 and not (to_y, to_x) in possible_kills:
                 return None
@@ -157,7 +158,7 @@ class BoardState:
             yield self.copy()
         else:
             for (to_y, to_x) in possible_moves:
-                answer = self.do_move(from_x, from_y, to_x, to_y, None)
+                answer = self.do_move(from_x, from_y, to_x, to_y)
                 for next_board in answer._get_next_possible_attack_iterator(to_y, to_x):
                     #next_board.delete_ate_pieces()
                     yield next_board
@@ -165,7 +166,7 @@ class BoardState:
     def get_possible_turn_iterator(self, from_y, from_x, attack_flag=False):
         if not attack_flag:
             for (to_y, to_x) in self.get_possible_moves(from_y, from_x):
-                answer = self.do_move(from_x, from_y, to_x, to_y, None)
+                answer = self.do_move(from_x, from_y, to_x, to_y)
                 answer.delete_ate_pieces()
                 yield answer
         else: 

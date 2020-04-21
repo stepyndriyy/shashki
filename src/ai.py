@@ -32,8 +32,11 @@ class AI:
             
         (possible_pieces, attack_flag) = Board.get_possible_piece()
         if len(possible_pieces) == 0:
-            # never've been there)
-            return None
+            if player == 1:
+                return None
+            else:
+                return Board.inverted()
+    
         best_board = BoardState()
         best_eval = -100500
         for pos in possible_pieces:
@@ -52,18 +55,3 @@ class AI:
         else:
             return best_board.inverted()
 
-
-    def simple_next_move(self, Board: BoardState) -> Optional[BoardState]:
-        best_board = BoardState()
-        cur_eval = -100500 #PositionEvaluation(best_board)
-        (possible_pieces, attack_flag) = Board.get_possible_piece()
-        if len(possible_pieces) == 0:
-            return None
-        for pos in possible_pieces:
-            for next_board in Board.get_possible_turn_iterator(pos[0], pos[1], attack_flag):
-                next_eval = PositionEvaluation(next_board)
-                if next_eval > cur_eval:
-                    next_eval = cur_eval
-                    best_board = next_board.copy()
-        return best_board
-        
