@@ -8,6 +8,7 @@ from src.ai import AI, PositionEvaluation
 from src.boardstate import BoardState
 from src.gamesave import Gamesave
 
+
 def draw_board(screen: Surface, pos_x: int, pos_y: int, elem_size: int, board: BoardState):
     dark = (0, 0, 0)
     white = (200, 200, 200)
@@ -28,21 +29,39 @@ def draw_board(screen: Surface, pos_x: int, pos_y: int, elem_size: int, board: B
             figure_color = 100, 100, 100
         r = elem_size // 2 - 10
 
-        pygame.draw.circle(screen, figure_color, (position[0] + elem_size // 2, position[1] + elem_size // 2), r)
+        pygame.draw.circle(
+            screen,
+            figure_color,
+            (position[0] +
+             elem_size //
+             2,
+             position[1] +
+             elem_size //
+             2),
+            r)
         if abs(figure) == 2:
             r = 5
             negative_color = [255 - e for e in figure_color]
-            pygame.draw.circle(screen, negative_color, (position[0] + elem_size // 2, position[1] + elem_size // 2), r)
-    
+            pygame.draw.circle(
+                screen,
+                negative_color,
+                (position[0] +
+                 elem_size //
+                 2,
+                 position[1] +
+                    elem_size //
+                    2),
+                r)
 
-def game_loop(screen: Surface, board: BoardState, ai: AI, save : Gamesave):
+
+def game_loop(screen: Surface, board: BoardState, ai: AI, save: Gamesave):
     previous_turn = Gamesave("previous_turn.txt")
     current_turn = Gamesave("current_turn.txt")
     previous_turn.write_save(board)
-    current_turn.write_save(board) 
-    
+    current_turn.write_save(board)
+
     grid_size = screen.get_size()[0] // 8
-    
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -51,34 +70,36 @@ def game_loop(screen: Surface, board: BoardState, ai: AI, save : Gamesave):
                 return
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                mouse_click_position = event.pos 
+                mouse_click_position = event.pos
                 old_x, old_y = [p // grid_size for p in mouse_click_position]
 
             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 new_x, new_y = [p // grid_size for p in event.pos]
                 old_x, old_y = [p // grid_size for p in mouse_click_position]
-                
+
                 new_board = None
                 new_board = board.do_move(old_x, old_y, new_x, new_y)
-                    
+
                 if new_board is not None:
                     board = new_board
                     board.current_piece = [new_x, new_y]
- 
+
             if event.type == pygame.MOUSEBUTTONUP and event.button == 3:
                 x, y = [p // grid_size for p in event.pos]
-                board.board[y, x] = (board.board[y, x] + 1 + 2) % 5 - 2  # change figure
+                board.board[y, x] = (board.board[y, x] +
+                                     1 + 2) % 5 - 2  # change figure
 
             if event.type == pygame.KEYDOWN:
-                #if event.key == pygame.K_r:
-                 #   board = board.inverted()
-                
+                # if event.key == pygame.K_r:
+                #   board = board.inverted()
+
                 if event.key == pygame.K_SPACE:
-                    if board.current_piece != None and (len(board.get_possible_moves(board.current_piece[1], board.current_piece[0], True)) == 0 or board.max_in_ate_pieces() == 0):
+                    if board.current_piece is not None and (len(board.get_possible_moves(
+                            board.current_piece[1], board.current_piece[0], True)) == 0 or board.max_in_ate_pieces() == 0):
                         previous_turn.copy_game(current_turn)
                         board.current_piece = None
                         board.delete_ate_pieces()
-                        
+
                         board = board.inverted()
                         new_board = ai.next_move(board)
                         if new_board is not None:
@@ -90,7 +111,7 @@ def game_loop(screen: Surface, board: BoardState, ai: AI, save : Gamesave):
                         # todo:
                         # message "you have to do move"
                         ...
-                
+
                 if event.key == pygame.K_s:
                     save.write_save(board)
 
@@ -108,12 +129,13 @@ def game_loop(screen: Surface, board: BoardState, ai: AI, save : Gamesave):
             font = pygame.font.Font(None, 75)
             if board.get_winner == 1:
                 text = font.render("YOU WIN", True, (0, 255, 0))
-            else: 
+            else:
                 text = font.render("YOU LOSE", True, (255, 0, 0))
             x, y = map(int, screen.get_size())
-            screen.blit(text, [x // 4, y // 2]) 
-        
+            screen.blit(text, [x // 4, y // 2])
+
         pygame.display.flip()
+
 
 def game_of_bots(screen: Surface, board: BoardState, ai: AI):
     grid_size = screen.get_size()[0] // 8
@@ -142,7 +164,7 @@ def game_of_bots(screen: Surface, board: BoardState, ai: AI):
 pygame.init()
 
 screen: Surface = pygame.display.set_mode([512, 512])
-ai = AI(search_depth=2) # full turn depth
+ai = AI(search_depth=2)  # full turn depth
 save = Gamesave("save.txt")
 
 game_loop(screen, BoardState.initial_state(), ai, save)
